@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from "express";
 import { Pool } from "pg";
 const app: Application = express();
 import dotenv from "dotenv";
+import config from "./config/index.js";
 
 dotenv.config();
 app.use(express.json());
@@ -10,7 +11,7 @@ app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
 
 const pool = new Pool({
-  connectionString: process.env.CONNECTION,
+  connectionString: config.connection_string,
 });
 const initDB = async () => {
   try {
@@ -95,21 +96,104 @@ app.get("/api/auth/signup/:id", async (req: Request, res: Response) => {
   `,
       [id],
     );
-    res.status(200).json({
-      success: true,
-      message: "User retrived succesfully",
-      data: result.rows[0],
-    })
-  } catch (error:any) {
+
+    if (result.rows.length == 0) {
+      res.status(404).json({
+        success: false,
+        message: "User not found ",
+        data: {},
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "User  found ",
+        data: result.rows[0],
+      });
+    }
+  } catch (error: any) {
     res.status(500).json({
       success: false,
       message: error.message,
       error: error,
     });
-  
   }
-})
+});
 
+app.put("/api/auth/signup/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, password, role } = req.body;
+
+    const result = await pool.query(
+      `
+      UPDATE users 
+      SET 
+      name=COALESCE($1,name),
+      password=COALESCE($2,password), 
+      role=COALESCE($3,role)
+      WHERE id=$4
+      RETURNING *
+      `,
+      [name, password, role, id],
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+        data: {},
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User Updated",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+});
+
+app.delete("/api/auth/signup/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `
+      DELETE FROM users
+      WHERE id = $1
+      RETURNING *
+      `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+       res.status(404).json({
+        success: false,
+        message: "User not found",
+        data: {},
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User Deleted",
+      data: {},
+    });
+
+  } catch (error: any) {
+     res.status(500).json({
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+});
 app.listen(5000, () => {
   console.log("Server is running at port 5000");
 });
