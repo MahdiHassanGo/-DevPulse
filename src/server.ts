@@ -10,7 +10,7 @@ app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
 
 const pool = new Pool({
-connectionString: process.env.CONNECTION,
+  connectionString: process.env.CONNECTION,
 });
 const initDB = async () => {
   try {
@@ -39,28 +39,76 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-app.post("/", async (req: Request, res: Response) => {
+app.post("/api/auth/signup", async (req: Request, res: Response) => {
   console.log(req.body);
-  const { name, email, password,role } = req.body;
- try{
-   const result = await pool.query(`
+  const { name, email, password, role } = req.body;
+  try {
+    const result = await pool.query(
+      `
   INSERT INTO users(name,email,password,role)
   VALUES ($1,$2,$3,$4)
   RETURNING name,email,role  
-    `,[name,email,password,role])
-    console.log()
-  res.status(201).json({
-    message: "User Created",
-    data: result.rows[0],
-  });
-
- }catch(error:any){
-res.status(500).json({
-    message: error.message,
-    error:error,
-  });
- }
+    `,
+      [name, email, password, role],
+    );
+    console.log();
+    res.status(201).json({
+      message: "User Created",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      message: error.message,
+      error: error,
+    });
+  }
 });
+
+app.get("/api/auth/signup", async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(`
+    SELECT * FROM users
+  `);
+    res.status(200).json({
+      success: true,
+      message: "Users retrived succesfully",
+      data: result.rows,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+});
+
+app.get("/api/auth/signup/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      `
+   SELECT * FROM users WHERE id=$1 
+  
+
+  `,
+      [id],
+    );
+    res.status(200).json({
+      success: true,
+      message: "User retrived succesfully",
+      data: result.rows[0],
+    })
+  } catch (error:any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  
+  }
+})
 
 app.listen(5000, () => {
   console.log("Server is running at port 5000");
