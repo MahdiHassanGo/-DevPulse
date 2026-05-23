@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { pool } from "./db/index.js";
 import { userRoute } from "./modules/user/user.routes.js";
 import { issueRoute } from "./modules/issues/issue.routes.js";
+import { authRoute } from "./modules/auth/auth.route.js";
 
 dotenv.config();
 app.use(express.json());
@@ -20,8 +21,9 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 
-app.use('/api/auth', userRoute);
+app.use('/api/user', userRoute);
 app.use('/api/issues', issueRoute);
+app.use('/api/auth',authRoute );
 
 
 
