@@ -7,7 +7,7 @@ A collaborative REST API platform for software teams to report bugs, suggest fea
 ## Live URL
 
 ```
-https://dev-pulse-zeh6-cotkt2oou-asif-s-projects1.vercel.app
+https://assignment-2-sable-chi.vercel.app
 ```
 
 ---
