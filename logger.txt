@@ -6,3 +6,23 @@ Method ->DELETE - Time -> 1779534136274 - URL/api/issues/6
 Method ->DELETE - Time -> 1779534157980 - URL/api/issues/6
 
 Method ->DELETE - Time -> 1779534273817 - URL/api/issues/6
+
+Method ->POST - Time -> 1779543636528 - URL/api/auth/signup
+
+Method ->POST - Time -> 1779543673802 - URL/api/auth/signup
+
+Method ->POST - Time -> 1779543697285 - URL/api/auth/signup
+
+Method ->POST - Time -> 1779543741329 - URL/api/auth/login
+
+Method ->POST - Time -> 1779543842445 - URL/api/issues
+
+Method ->POST - Time -> 1779544076019 - URL/api/auth/login
+
+Method ->POST - Time -> 1779544104884 - URL/api/issues
+
+Method ->POST - Time -> 1779544246329 - URL/api/issues
+
+Method ->GET - Time -> 1779544320093 - URL/api/issues?sort=newest
+
+Method ->GET - Time -> 1779544751726 - URL/api/issues?sort=newest

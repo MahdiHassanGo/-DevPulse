@@ -56,10 +56,12 @@ const getIssuesFromDB = async (sort: string = "newest", type?: string, status?: 
   });
 
   const data = issues.map((issue) => {
-    const { reporter_id, ...rest } = issue;
+    const { reporter_id,created_at,updated_at, ...rest } = issue;
     return {
       ...rest,
       reporter: reporterMap[reporter_id] || null,
+      created_at,
+      updated_at,
     };
   });
 
