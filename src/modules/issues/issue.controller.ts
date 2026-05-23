@@ -1,216 +1,226 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { issueService } from "./issue.service.js";
+import sendResponse from "../../utility/sendResponse.js";
+import { USER_ROLE } from "../../types/index.js";
 
+const createIssue = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { title, description, type } = req.body as {
+        title: string;
+        description: string;
+        type: string;
+    };
 
-const     createIssue = async (req: Request, res: Response) => {
-  const { title, description, type, reporter_id } = req.body;
-
-  if (!title || !description || !type) {
-    res.status(400).json({
-      success: false,
-
-      message: "title, description, and type are required",
-    });
-
-    return;
-  }
-
-  if (title.length > 150) {
-    res.status(400).json({
-      success: false,
-
-      message: "title must not exceed 150 characters",
-    });
-
-    return;
-  }
-
-  if (description.length < 20) {
-    res.status(400).json({
-      success: false,
-
-      message: "description must be at least 20 characters",
-    });
-
-    return;
-  }
-
-  if (!["bug", "feature_request"].includes(type)) {
-    res.status(400).json({
-      success: false,
-
-      message: "type must be bug or feature_request",
-    });
-
-    return;
-  }
-
-  try {
-    
-    const result = await issueService.createIssueIntoDB(req.body)
-
-    res.status(200).json({
-      success: true,
-
-      message: "Issue created successfully",
-
-      data: result.rows[0],
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-
-      message: error.message,
-
-      errors: error,
-    });
-  }
-}
-
-const getIssues = async (req: Request, res: Response) => {
-  const { sort = "newest", type, status } = req.query;
-
-  try {
-    const data = await issueService.getIssuesFromDB(
-      sort as string,
-      type as string,
-      status as string
-    );
-
-    res.status(200).json({
-      success: true,
-      data,
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      errors: error,
-    });
-  }
-};
-
-const getIssueById = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    const data = await issueService.getIssueByIdFromDB(id as string);
-
-    if (!data) {
-      res.status(404).json({
-        success: false,
-        message: "Issue not found",
-      });
-      return;
+    if (!title || !description || !type) {
+        res.status(400).json({
+            success: false,
+            message: "title, description, and type are required",
+        });
+        return;
     }
 
-    res.status(200).json({
-      success: true,
-      data,
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      errors: error,
-    });
-  }
-};
-
-const updateIssue = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { title, description, type, status } = req.body;
-
-  if (title && title.length > 150) {
-    res.status(400).json({
-      success: false,
-      message: "title must not exceed 150 characters",
-    });
-    return;
-  }
-
-  if (description && description.length < 20) {
-    res.status(400).json({
-      success: false,
-      message: "description must be at least 20 characters",
-    });
-    return;
-  }
-
-  if (type && !["bug", "feature_request"].includes(type)) {
-    res.status(400).json({
-      success: false,
-      message: "type must be bug or feature_request",
-    });
-    return;
-  }
-
-  if (status && !["open", "in_progress", "resolved"].includes(status)) {
-    res.status(400).json({
-      success: false,
-      message: "status must be open, in_progress, or resolved",
-    });
-    return;
-  }
-
-  try {
-    const existing = await issueService.getIssueByIdFromDB(id as string);
-
-    if (!existing) {
-      res.status(404).json({
-        success: false,
-        message: "Issue not found",
-      });
-      return;
+    if (title.length > 150) {
+        res.status(400).json({
+            success: false,
+            message: "title must not exceed 150 characters",
+        });
+        return;
     }
 
-    const result = await issueService.updateIssueInDB(id as string, req.body);
-
-    res.status(200).json({
-      success: true,
-      message: "Issue updated successfully",
-      data: result,
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      errors: error,
-    });
-  }
-};
-
-const deleteIssue = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    const result = await issueService.deleteIssueFromDB(id as string);
-
-    if (!result) {
-      res.status(404).json({
-        success: false,
-        message: "Issue not found",
-      });
-      return;
+    if (description.length < 20) {
+        res.status(400).json({
+            success: false,
+            message: "description must be at least 20 characters",
+        });
+        return;
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Issue deleted successfully",
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      errors: error,
-    });
-  }
+    if (!["bug", "feature_request"].includes(type)) {
+        res.status(400).json({
+            success: false,
+            message: "type must be bug or feature_request",
+        });
+        return;
+    }
+
+    try {
+        // reporter_id is extracted from the decoded JWT — never trusted from req.body
+        const reporter_id = req.user!.id as number;
+        const result = await issueService.createIssueIntoDB({ ...req.body, reporter_id });
+
+        sendResponse(res, {
+            statusCode: 201,
+            success: true,
+            message: "Issue created successfully",
+            data: result.rows[0],
+        });
+    } catch (error: unknown) {
+        next(error);
+    }
 };
 
-export const issueController={
+const getIssues = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { sort = "newest", type, status } = req.query;
+
+    try {
+        const data = await issueService.getIssuesFromDB(
+            sort as string,
+            type as string,
+            status as string
+        );
+
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Issues retrived successfully",
+            data,
+        });
+    } catch (error: unknown) {
+        next(error);
+    }
+};
+
+const getIssueById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { id } = req.params;
+
+    try {
+        const data = await issueService.getIssueByIdFromDB(id);
+
+        if (!data) {
+            res.status(404).json({
+                success: false,
+                message: "Issue not found",
+            });
+            return;
+        }
+
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Issue retrived successfully",
+            data,
+        });
+    } catch (error: unknown) {
+        next(error);
+    }
+};
+
+const updateIssue = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { id } = req.params;
+    const { title, description, type, status } = req.body as {
+        title?: string;
+        description?: string;
+        type?: string;
+        status?: string;
+    };
+    const requestingUser = req.user!;
+
+    if (title && title.length > 150) {
+        res.status(400).json({
+            success: false,
+            message: "title must not exceed 150 characters",
+        });
+        return;
+    }
+
+    if (description && description.length < 20) {
+        res.status(400).json({
+            success: false,
+            message: "description must be at least 20 characters",
+        });
+        return;
+    }
+
+    if (type && !["bug", "feature_request"].includes(type)) {
+        res.status(400).json({
+            success: false,
+            message: "type must be bug or feature_request",
+        });
+        return;
+    }
+
+    try {
+        const existing = await issueService.getIssueByIdFromDB(id);
+
+        if (!existing) {
+            res.status(404).json({
+                success: false,
+                message: "Issue not found",
+            });
+            return;
+        }
+
+        // Permission rules for contributors:
+        // 1. Can only edit issues they reported themselves
+        // 2. Can only edit if the issue is still open (not in_progress or resolved)
+        // 3. Cannot change the status field — that is a maintainer-only privilege
+        if (requestingUser.role === USER_ROLE.contributor) {
+            if (existing.reporter.id !== requestingUser.id) {
+                res.status(403).json({
+                    success: false,
+                    message: "Forbidden Access",
+                });
+                return;
+            }
+
+            if (existing.status !== "open") {
+                res.status(409).json({
+                    success: false,
+                    message: "Contributors can only update issues with open status",
+                });
+                return;
+            }
+
+            if (status) {
+                res.status(403).json({
+                    success: false,
+                    message: "Contributors cannot change issue status",
+                });
+                return;
+            }
+        }
+
+        // Maintainers bypass all checks above and can update any field on any issue
+        const result = await issueService.updateIssueInDB(id, req.body);
+
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Issue updated successfully",
+            data: result,
+        });
+    } catch (error: unknown) {
+        next(error);
+    }
+};
+
+const deleteIssue = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const { id } = req.params;
+
+    try {
+        const result = await issueService.deleteIssueFromDB(id);
+
+        if (!result) {
+            res.status(404).json({
+                success: false,
+                message: "Issue not found",
+            });
+            return;
+        }
+
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "Issue deleted successfully",
+        });
+    } catch (error: unknown) {
+        next(error);
+    }
+};
+
+export const issueController = {
     createIssue,
     getIssues,
     getIssueById,
     updateIssue,
-    deleteIssue
-}
+    deleteIssue,
+};

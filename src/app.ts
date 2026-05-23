@@ -1,37 +1,36 @@
 import express, { Application, Request, Response } from "express";
-const app: Application = express();
 import dotenv from "dotenv";
-import { pool } from "./db/index.js";
+import cors from "cors";
+import CookieParser from "cookie-parser";
 import { userRoute } from "./modules/user/user.routes.js";
 import { issueRoute } from "./modules/issues/issue.routes.js";
 import { authRoute } from "./modules/auth/auth.route.js";
-import fs from "fs"
-import cors from "cors"
-import CookieParser from "cookie-parser"
 import logger from "./middleware/logger.js";
+import globalErrorHandler from "./middleware/globalErrorHandler.js";
+
 dotenv.config();
+
+const app: Application = express();
+
 app.use(express.json());
-app.use(CookieParser())
+app.use(CookieParser());
 app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 app.use(logger);
+
 app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({
-    message: "Express Server ",
-    author: "Asif",
-  });
+    res.status(200).json({
+        message: "Express Server",
+        author: "Asif",
+    });
 });
 
-const corsOptions = {
-  origin: 'http://localhost:5000/',
+app.use("/api/user", userRoute);
+app.use("/api/issues", issueRoute);
+app.use("/api/auth", authRoute);
 
-}
-app.use(cors(corsOptions))
-app.use('/api/user', userRoute);
-app.use('/api/issues', issueRoute);
-app.use('/api/auth',authRoute );
+// Global error handler must be registered last, after all routes
+app.use(globalErrorHandler);
 
-
-
-
-export default app
+export default app;

@@ -1,10 +1,8 @@
-import { Request, Response, Router } from "express";
-import { pool } from "../../db/index.js";
+import { Router } from "express";
 import { userController } from "./user.controller.js";
 
-const router = Router()
-const auth = (res,req,next)=>{
+const router = Router();
 
-}
-router.post("/signup",userController.createUser);
-export const userRoute= router
+router.post("/signup", userController.createUser);
+
+export const userRoute = router;
