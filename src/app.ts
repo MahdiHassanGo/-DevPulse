@@ -30,7 +30,6 @@ app.use("/api/auth", userRoute);
 app.use("/api/issues", issueRoute);
 app.use("/api/auth", authRoute);
 
-// Global error handler must be registered last, after all routes
 app.use(globalErrorHandler);
 
 export default app;
