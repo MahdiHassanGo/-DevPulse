@@ -38,7 +38,6 @@ const signup = async (req: Request, res: Response, next: NextFunction): Promise<
             data: result.rows[0],
         });
     } catch (error: unknown) {
-        // PostgreSQL unique constraint violation — duplicate email
         if (error instanceof DatabaseError && error.code === "23505") {
             res.status(400).json({
                 success: false,
@@ -56,7 +55,6 @@ const loginUser = async (req: Request, res: Response, next: NextFunction): Promi
         const result = await authService.loginUserIntoDB(req.body);
         const { refreshToken, accessToken, user } = result;
 
-        // Store refresh token in an HTTP-only cookie — not exposed to client JS
         res.cookie("RefreshToken", refreshToken, {
             secure: false,
             httpOnly: true,

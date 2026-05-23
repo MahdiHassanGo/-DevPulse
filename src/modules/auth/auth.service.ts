@@ -27,7 +27,6 @@ const loginUserIntoDB = async (payload: LoginPayload) => {
         throw new Error("Invalid credentials");
     }
 
-    // Only include id, name, role in JWT — keep payload minimal per spec hint
     const jwtPayload = {
         id: user.id as number,
         name: user.name as string,
@@ -46,14 +45,12 @@ const loginUserIntoDB = async (payload: LoginPayload) => {
         { expiresIn: "7d" }
     );
 
-    // Exclude password from the returned user object — never exposed in responses
     const { password: _password, ...userWithoutPassword } = user;
 
     return { accessToken, refreshToken, user: userWithoutPassword };
 };
 
 const generatedFreshToken = async (token: string): Promise<void> => {
-    // Refresh token logic placeholder
 };
 
 export const authService = {

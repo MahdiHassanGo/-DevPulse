@@ -82,11 +82,12 @@ const getIssueByIdFromDB = async (id: string) => {
     [issue.reporter_id],
   );
 
-  const { reporter_id, ...rest } = issue;
+  const { created_at,updated_at,reporter_id, ...rest } = issue;
 
   return {
     ...rest,
     reporter: reporterResult.rows[0] || null,
+    created_at,updated_at,
   };
 };
 

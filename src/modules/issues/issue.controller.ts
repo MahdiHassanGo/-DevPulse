@@ -43,7 +43,6 @@ const createIssue = async (req: Request, res: Response, next: NextFunction): Pro
     }
 
     try {
-        // reporter_id is extracted from the decoded JWT — never trusted from req.body
         const reporter_id = req.user!.id as number;
         const result = await issueService.createIssueIntoDB({ ...req.body, reporter_id });
 
@@ -149,10 +148,7 @@ const updateIssue = async (req: Request, res: Response, next: NextFunction): Pro
             return;
         }
 
-        // Permission rules for contributors:
-        // 1. Can only edit issues they reported themselves
-        // 2. Can only edit if the issue is still open (not in_progress or resolved)
-        // 3. Cannot change the status field — that is a maintainer-only privilege
+      
         if (requestingUser.role === USER_ROLE.contributor) {
             if (existing.reporter.id !== requestingUser.id) {
                 res.status(403).json({
@@ -179,7 +175,6 @@ const updateIssue = async (req: Request, res: Response, next: NextFunction): Pro
             }
         }
 
-        // Maintainers bypass all checks above and can update any field on any issue
         const result = await issueService.updateIssueInDB(id, req.body);
 
         sendResponse(res, {
