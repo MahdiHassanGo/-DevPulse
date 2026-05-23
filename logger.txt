@@ -80,3 +80,27 @@ Method ->PATCH - Time -> 1779545386409 - URL/api/issues/3
 Method ->POST - Time -> 1779545749621 - URL/api/issues
 
 Method ->POST - Time -> 1779545758610 - URL/api/auth/signup
+
+Method ->GET - Time -> 1779546330549 - URL/api/users
+
+Method ->GET - Time -> 1779546342312 - URL/api/users
+
+Method ->GET - Time -> 1779546343700 - URL/api/users
+
+Method ->GET - Time -> 1779546386202 - URL/api/issues
+
+Method ->GET - Time -> 1779546389742 - URL/favicon.ico
+
+Method ->GET - Time -> 1779547267546 - URL/
+
+Method ->GET - Time -> 1779547269356 - URL/
+
+Method ->GET - Time -> 1779547269486 - URL/
+
+Method ->GET - Time -> 1779547269623 - URL/
+
+Method ->GET - Time -> 1779547269774 - URL/
+
+Method ->GET - Time -> 1779547269905 - URL/
+
+Method ->GET - Time -> 1779547270069 - URL/

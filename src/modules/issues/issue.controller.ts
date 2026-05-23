@@ -79,7 +79,7 @@ const getIssues = async (req: Request, res: Response, next: NextFunction): Promi
 };
 
 const getIssueById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     try {
         const data = await issueService.getIssueByIdFromDB(id);
@@ -104,7 +104,7 @@ const getIssueById = async (req: Request, res: Response, next: NextFunction): Pr
 };
 
 const updateIssue = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { title, description, type, status } = req.body as {
         title?: string;
         description?: string;
@@ -189,7 +189,7 @@ const updateIssue = async (req: Request, res: Response, next: NextFunction): Pro
 };
 
 const deleteIssue = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     try {
         const result = await issueService.deleteIssueFromDB(id);
