@@ -6,10 +6,12 @@ import { userRoute } from "./modules/user/user.routes.js";
 import { issueRoute } from "./modules/issues/issue.routes.js";
 import { authRoute } from "./modules/auth/auth.route.js";
 import fs from "fs"
+import cors from "cors"
+import CookieParser from "cookie-parser"
 import logger from "./middleware/logger.js";
 dotenv.config();
 app.use(express.json());
-
+app.use(CookieParser())
 app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
@@ -20,7 +22,11 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
+const corsOptions = {
+  origin: 'http://localhost:5000/',
 
+}
+app.use(cors(corsOptions))
 app.use('/api/user', userRoute);
 app.use('/api/issues', issueRoute);
 app.use('/api/auth',authRoute );

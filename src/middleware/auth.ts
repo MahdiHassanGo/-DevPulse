@@ -3,9 +3,14 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from "../config/index.js";
 import { pool } from "../db/index.js";
 
-const auth = () => {
+
+ const auth = ({...roles:ROLES.maintainer}) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization
+
+
+
+  try{
+  const token = req.headers.authorization
 
     if(!token){
          res.status(401).json({
@@ -30,15 +35,23 @@ const auth = () => {
       
     });
   }
-
-  if(!user.role==='maintainer'){
- res.status(403).json({
+  
+  if(roles.length && !roles.includes('maintainer')){
+res.status(403).json({
       success: false,
       message: "Forbidden Access ",
   })
+  }
+
   
+ 
+req.user=decoded
     next();
+  }catch(error){
+next(error)
+  }
   };
 };
+
 
 export default auth;

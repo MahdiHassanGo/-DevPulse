@@ -27,13 +27,21 @@ const jwtPayload={
     id:user.id,
     name:user.name,
     email:user.email
+    role:user.role
 }
 const accessToken = jwt.sign(jwtPayload,config.access_token_secret as string,{
   expiresIn:"1d",  
 })
-return {accessToken}
+const refreshToken = jwt.sign(jwtPayload,config.refresh_token_secret as string,{
+  expiresIn:"7d",  
+})
+return {accessToken,refreshToken}
 }
+const generatedFreshToken = async(token:string){
 
+
+}
 export const authService ={
-    loginUserIntoDB
+    loginUserIntoDB,
+    generatedFreshToken
 }
