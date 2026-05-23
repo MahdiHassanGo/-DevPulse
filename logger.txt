@@ -1,0 +1,8 @@
+Method ->POST - Time -> 1779533185666 - URL/api/auth/loginMethod ->POST - Time -> 1779533223651 - URL/api/auth/login
+Method ->GET - Time -> 1779534032894 - URL/api/issues/
+
+Method ->DELETE - Time -> 1779534136274 - URL/api/issues/6
+
+Method ->DELETE - Time -> 1779534157980 - URL/api/issues/6
+
+Method ->DELETE - Time -> 1779534273817 - URL/api/issues/6
