@@ -20,7 +20,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 
-app.use('/api/auth/signup', userRoute);
+app.use('/api/auth', userRoute);
 app.use('/api/issues', issueRoute);
 
 
